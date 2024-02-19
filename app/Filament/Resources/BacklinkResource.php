@@ -44,13 +44,15 @@ class BacklinkResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('link_url')
+                TextColumn::make('link_url'),
+                TextColumn::make('domain_rank')->label('DR'),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->label(''),
+                Tables\Actions\DeleteAction::make()->label(''),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
