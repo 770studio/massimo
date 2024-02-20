@@ -33,6 +33,7 @@ class ProcessBacklink implements ShouldQueue, ShouldBeUnique
             $response = Http::retry(3, 100)->connectTimeout(10)->get($this->backlink->link_url);
             if ($response->successful())
             {
+                $this->backlink->status_code=$response->status();
                 $dom = new DOMDocument;
                 @$dom->loadHTML($response->body());
                 $links = $dom->getElementsByTagName('a');
@@ -41,6 +42,9 @@ class ProcessBacklink implements ShouldQueue, ShouldBeUnique
                     {
                         echo $link->nodeValue." - ";
                         echo $link->getAttribute('href')."\n";
+                        if (is_null($this->backlink->linked_url)) $this->backlink->linked_url=$link->getAttribute('href');
+                        $this->backlink->status_link_rel=($link->getAttribute('rel') ? $link->getAttribute('rel') : 'follow');
+                        $this->backlink->status_link_present=true;
                     }
                 }
             }
@@ -48,6 +52,8 @@ class ProcessBacklink implements ShouldQueue, ShouldBeUnique
         } catch(\Illuminate\Http\Client\ConnectionException $e) {
 
         }
+        $this->backlink->last_checked_at=date("Y-m-d H:i:s");
+        $this->backlink->save();
     }
 
     public function uniqueId(): string
