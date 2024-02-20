@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Imports\BacklinkImporter;
 use App\Filament\Resources\BacklinkResource\Pages;
 use App\Filament\Resources\BacklinkResource\RelationManagers;
 use App\Models\Backlink;
@@ -13,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Actions\ImportAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -45,6 +47,10 @@ class BacklinkResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('link_url'),
+                TextColumn::make('status_link_present')->badge()
+                ->color(fn (string $state): string => match ($state) {
+                    '1' => 'success',
+                    '0' => 'danger'})->formatStateUsing(fn (string $state): string => ($state=='1' ? 'Live':'Removed'))->label('Status'),
                 TextColumn::make('domain_rank')->label('DR'),
             ])
             ->filters([
@@ -58,6 +64,11 @@ class BacklinkResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                ImportAction::make()
+                    ->importer(BacklinkImporter::class)->label('Import CSV')
+                    ->maxRows(1000)
             ]);
     }
 

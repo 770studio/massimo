@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('site_id')->references('id')->on('sites');
             $table->text('link_url',500);
+            $table->string('link_anchor',255)->default('');
             $table->integer('status_code')->after('link_url')->nullable();
             $table->text('status_redirect_to',500)->nullable()->default(null)->after('status_code');
             $table->boolean('status_link_present')->after('status_redirect_to')->nullable();
