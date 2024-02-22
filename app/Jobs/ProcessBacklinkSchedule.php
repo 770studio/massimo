@@ -29,7 +29,7 @@ class ProcessBacklinkSchedule implements ShouldQueue, ShouldBeUnique
      */
     public function handle(): void
     {
-        $backlinks= BackLink::where('last_checked_at','<=', date("Y-m-d H:i:s",strtotime('24 hours ago')))->get();
+        $backlinks= BackLink::where('last_checked_at','<=', date("Y-m-d H:i:s",strtotime('24 hours ago')))->orWhere('last_checked_at', '=', null)->get();
         if($backlinks->count()>0) foreach($backlinks as $backlink)
         {
             ProcessBacklink::dispatch($backlink);

@@ -28,9 +28,11 @@ class BacklinkImporter extends Importer
         return [
             ImportColumn::make('link_url')
             ->requiredMapping()
-            ->rules(['required', 'max:500', 'url']),
+            ->rules(['required', 'max:500', 'url'])
+            ->guess(['url', 'link-url', 'referring page url']),
             ImportColumn::make('domain_rank')
-            ->rules(['numeric']),
+            ->rules(['numeric'])
+            ->guess(['dr', 'domain rating']),
         ];
     }
 

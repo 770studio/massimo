@@ -36,6 +36,12 @@ class ProcessBacklink implements ShouldQueue, ShouldBeUnique
                 $this->backlink->status_code=$response->status();
                 $dom = new DOMDocument;
                 @$dom->loadHTML($response->body());
+                //Get page title
+                $title = $dom->getElementsByTagName('title');
+                if ($title->length)
+                {
+                    $this->backlink->link_title=$title->item(0)->nodeValue;
+                }
                 $links = $dom->getElementsByTagName('a');
                 foreach ($links as $link) {
                     if (stristr($link->getAttribute('href'),$this->backlink->site->domain))
@@ -43,6 +49,7 @@ class ProcessBacklink implements ShouldQueue, ShouldBeUnique
                         echo $link->nodeValue." - ";
                         echo $link->getAttribute('href')."\n";
                         if (is_null($this->backlink->linked_url)) $this->backlink->linked_url=$link->getAttribute('href');
+                        $this->backlink->link_anchor=$link->nodeValue;
                         $this->backlink->status_link_rel=($link->getAttribute('rel') ? $link->getAttribute('rel') : 'follow');
                         $this->backlink->status_link_present=true;
                     }

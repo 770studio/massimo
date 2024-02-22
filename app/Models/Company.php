@@ -29,6 +29,11 @@ class Company extends Model implements HasName, HasAvatar
         return $this->hasMany(Site::class);
     }
 
+    public function processes(): HasMany
+    {
+        return $this->hasMany(Process::class);
+    }
+
     public function backlinks(): HasManyThrough
     {
         return $this->hasOneThrough(Backlink::class, Site::class,'id','id','site_id','company_id');
