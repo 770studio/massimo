@@ -2,22 +2,54 @@
 
 namespace App\Models;
 
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Models\Contracts\HasName;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Filament\Models\Contracts\HasAvatar;
+use Wallo\FilamentCompanies\Company as FilamentCompaniesCompany;
+use Wallo\FilamentCompanies\Events\CompanyCreated;
+use Wallo\FilamentCompanies\Events\CompanyDeleted;
+use Wallo\FilamentCompanies\Events\CompanyUpdated;
 
-class Company extends Model implements HasName, HasAvatar
+class Company extends FilamentCompaniesCompany implements HasAvatar
 {
     use HasFactory;
 
+    public function getFilamentAvatarUrl(): string
+    {
+        return $this->owner->profile_photo_url;
+    }
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'personal_company' => 'boolean',
+    ];
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'name',
-        'website',
+        'personal_company',
     ];
+
+    /**
+     * The event map for the model.
+     *
+     * @var array<string, class-string>
+     */
+    protected $dispatchesEvents = [
+        'created' => CompanyCreated::class,
+        'updated' => CompanyUpdated::class,
+        'deleted' => CompanyDeleted::class,
+    ];
+
 
     public function getFilamentName(): string
     {
@@ -39,14 +71,5 @@ class Company extends Model implements HasName, HasAvatar
         return $this->hasOneThrough(Backlink::class, Site::class,'id','id','site_id','company_id');
     }
 
-    public function getFilamentAvatarUrl(): ?string
-    {
-        if (strlen($this->website)> 9)
-        {
-            $urlData=parse_url($this->website);
-            return "https://www.google.com/s2/favicons?domain=".$urlData['host']."&sz=256";
-        }
-        return false;
 
-    }
 }
