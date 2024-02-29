@@ -38,6 +38,9 @@ class FilamentCompaniesServiceProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+
+        $persCompany = Auth::user()?->personalCompany();
+
         return $panel
             ->id('company')
             ->path('company')
@@ -82,7 +85,7 @@ class FilamentCompaniesServiceProvider extends PanelProvider
                 'profile' => MenuItem::make()
                     ->label('Profile')
                     ->icon('heroicon-o-user-circle')
-                    ->url(static fn() => url('admin', Auth::user()?->personalCompany()->id))
+                    ->url(static fn() => $persCompany ? url('admin', $persCompany->id) : '')
                 ,
 
             ])
