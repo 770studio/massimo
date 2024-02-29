@@ -15,7 +15,6 @@ use App\Models\Company;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\MenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -81,14 +80,7 @@ class FilamentCompaniesServiceProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
             ])
-            ->userMenuItems([
-                'profile' => MenuItem::make()
-                    ->label('Profile')
-                    ->icon('heroicon-o-user-circle')
-                    ->url(static fn() => $persCompany ? url('admin', $persCompany->id) : '')
-                ,
 
-            ])
             ->authGuard('web')
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
             ->widgets([

@@ -1,25 +1,20 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Company\Resources;
 
-use App\Filament\Resources\ProcessResource\Pages;
-use App\Filament\Resources\ProcessResource\RelationManagers;
+
 use App\Models\Process;
-use Filament\Forms;
+use Filament\Forms\Components\Builder;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Table;
-//use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Builder;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+
+//use Illuminate\Database\Eloquent\Builder;
 
 class ProcessResource extends Resource
 {
@@ -60,6 +55,7 @@ class ProcessResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->label('Process Name'),
+
             ])
             ->filters([
                 //
@@ -85,10 +81,10 @@ class ProcessResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProcesses::route('/'),
-            'create' => Pages\CreateProcess::route('/create'),
-            'view' => Pages\ViewProcess::route('/{record}'),
-            'edit' => Pages\EditProcess::route('/{record}/edit'),
+            'index' => ProcessResource\Pages\ListProcesses::route('/'),
+            'create' => ProcessResource\Pages\CreateProcess::route('/create'),
+            'view' => ProcessResource\Pages\ViewProcess::route('/{record}'),
+            'edit' => ProcessResource\Pages\EditProcess::route('/{record}/edit'),
         ];
     }
 }

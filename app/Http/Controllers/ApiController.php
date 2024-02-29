@@ -27,7 +27,8 @@ class ApiController extends Controller
         Validator::make($request->all(), [
             'process_id' => [
                 function (string $attribute, mixed $value, Closure $fail) use ($auth_user, $process) {
-                    if ($process->user_id === $auth_user->getKey()) {
+
+                    if ($process->user_id !== $auth_user->getKey()) {
                         $fail("User A does not match.");
                     }
                 },
