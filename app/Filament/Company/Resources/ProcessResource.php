@@ -38,7 +38,7 @@ class ProcessResource extends Resource
                         ]),
                     Builder\Block::make('task')
                         ->schema([
-                            TextInput::make('task')
+                            TextInput::make('content')
                                 ->label('Task text')
                                 ->required(),
                                 Toggle::make('is_required')

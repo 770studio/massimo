@@ -40,11 +40,9 @@ class TaskResource extends Resource
                     ->sortable()
                     ->openUrlInNewTab(),
                 TextColumn::make('assigned_to.name'),
-                TextColumn::make('process.name')
-                    ->label('execution')
-                    ->url(fn(Task $task): string => url(Dashboard::getUrl(panel: 'company', tenant: $task->company) . '/processes/' .
-                        $task->process_id)
-                    )
+                TextColumn::make('execution')
+                    ->default('run')
+                    ->url(fn(Task $task): string => TaskExecutionResource::getUrl('create', ['task' => $task->id]))
                     ->sortable()
                     ->openUrlInNewTab(),
 

@@ -11,7 +11,7 @@ class Process extends Model
     use HasFactory;
     protected $fillable = ['name', 'user_id','company_id','configuration'];
     protected $casts = [
-        'configuration' => 'array'
+        'configuration' => 'collection'
     ];
 
 

@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Helpers\FormFields\FormFieldBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Support\Collection;
 
 class Task extends Model
 {
@@ -32,5 +34,11 @@ class Task extends Model
         return $this->hasOneThrough(Company::class, Process::class, 'id', 'id', 'process_id', 'company_id');
     }
 
+    public function buildForm(): Collection
+    {
+        return $this->process->configuration
+            ->mapInto(FormFieldBuilder::class)
+            ->map(fn(FormFieldBuilder $field) => $field->build());
+    }
 
 }
