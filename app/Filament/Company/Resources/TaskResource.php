@@ -3,6 +3,7 @@
 namespace App\Filament\Company\Resources;
 
 use App\Models\Task;
+use Auth;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Toggle;
@@ -14,6 +15,7 @@ use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\UnauthorizedException;
 
 class TaskResource extends Resource
 {
@@ -27,6 +29,12 @@ class TaskResource extends Resource
     {
         /** @var Task $task */
         $task = $form->getRecord();
+
+        if ($task->assigned_to && $task->assigned_to !== Auth::id()) {
+            throw new UnauthorizedException('Task is already assigned to another user');
+            // return redirect('/dashboard')->with('success', 'You have set your password successfully.');
+        }
+
 
         return $form
             ->schema(
@@ -107,11 +115,18 @@ class TaskResource extends Resource
 
     public static function canEdit(Model $record): bool
     {
-        return true;
+        return !$record->assigned_to || $record->assigned_to === Auth::id();
     }
 
     public static function canDelete(Model $record): bool
     {
         return false;
     }
+
+    /*    public static function canView(Model $record): bool
+        {
+            return !$record->assigned_to || $record->assigned_to === \Auth::id();
+        }*/
+
+
 }
