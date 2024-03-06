@@ -36,9 +36,10 @@ class Task extends Model
 
     public function buildForm(): Collection
     {
+
         return $this->process->configuration
             ->mapInto(FormFieldBuilder::class)
-            ->map(fn(FormFieldBuilder $field) => $field->build());
+            ->map(fn(FormFieldBuilder $field) => $field->build($this->execution_data));
     }
 
 }

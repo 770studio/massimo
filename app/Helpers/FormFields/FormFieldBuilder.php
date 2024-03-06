@@ -4,6 +4,7 @@ namespace App\Helpers\FormFields;
 
 use App\Enums\FormFieldType;
 use Filament\Forms\Components\Component;
+use Illuminate\Support\Str;
 
 class FormFieldBuilder
 {
@@ -20,11 +21,18 @@ class FormFieldBuilder
 
     }
 
-    public function build(): Component
+    public function build(?array $execution_data = []): Component
     {
+        $content = $this->prepareContent((array)$execution_data);
+        /** @var AbstractFormField $entity */
+        $entity = new ("\App\Helpers\FormFields\\" . Str::studly($this->type->value))($content, $this->required);
+        return $entity->build();
 
-        return $this->type->getField($this->content, $this->required);
 
     }
 
+    private function prepareContent(array $execution_data): string
+    {
+        return Str::replace(array_keys($execution_data), array_values($execution_data), $this->content);
+    }
 }

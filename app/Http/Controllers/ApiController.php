@@ -49,9 +49,11 @@ class ApiController extends Controller
         ])->validate();
 
 
+
         Task::query()->create([
             'process_id' => $process->getKey(),
             'assigned_to' => $user->getKey(),
+            'execution_data' => $request->data,
 
         ]);
 
