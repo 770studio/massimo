@@ -3,12 +3,14 @@
 namespace App\Filament\Company\Resources;
 
 use App\Models\Task;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -23,9 +25,32 @@ class TaskResource extends Resource
 
     public static function form(Form $form): Form
     {
+        /** @var Task $task */
+        $task = $form->getRecord();
+
         return $form
-            ->schema([
-            ]);
+            ->schema(
+                [
+                    Section::make(
+                        $task->buildForm()->toArray()
+                    ),
+
+                    Placeholder::make('created_at')
+                        ->label('Created Date')
+                        ->content(fn(?Task $record): string => $record?->created_at?->diffForHumans() ?? '-'),
+
+                    Placeholder::make('updated_at')
+                        ->label('Last Modified Date')
+                        ->content(fn(?Task $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
+
+                    Toggle::make('completed')
+                        ->hidden(
+                            fn(callable $get): bool => $get('completed') == false
+                        )
+                        ->disabled(),
+
+
+                ]);
     }
 
     public static function table(Table $table): Table
@@ -40,7 +65,8 @@ class TaskResource extends Resource
                 TextColumn::make('assignedUser.name'),
                 TextColumn::make('execution')
                     ->default('run')
-                    ->url(fn(Task $task): string => TaskExecutionResource::getUrl('create', ['task' => $task->id]))
+                    ->url(fn(Task $task): string => TaskResource::getUrl('edit', ['record' => $task->id]))
+                    //  ->url(fn(Task $task): string => TaskExecutionResource::getUrl('create', ['task' => $task->id]))
                     ->sortable()
                     ->openUrlInNewTab(),
 
@@ -50,7 +76,7 @@ class TaskResource extends Resource
                 //
             ])
             ->actions([
-                EditAction::make(),
+                //    EditAction::make(),
                 DeleteAction::make(),
             ])
             ->bulkActions([
@@ -65,7 +91,7 @@ class TaskResource extends Resource
         return [
             'index' => TaskResource\Pages\ListTasks::route('/'),
             'create' => TaskResource\Pages\CreateTask::route('/create'),
-            'edit' => TaskResource\Pages\EditTask::route('/{record}/edit'),
+            'edit' => TaskResource\Pages\EditTask::route('/{record}/execute'),
         ];
     }
 
@@ -81,7 +107,7 @@ class TaskResource extends Resource
 
     public static function canEdit(Model $record): bool
     {
-        return false;
+        return true;
     }
 
     public static function canDelete(Model $record): bool

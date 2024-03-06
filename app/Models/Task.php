@@ -36,10 +36,12 @@ class Task extends Model
 
     public function buildForm(): Collection
     {
-
+        //  dd($this->task_data);
         return $this->process->configuration
             ->mapInto(FormFieldBuilder::class)
-            ->map(fn(FormFieldBuilder $field) => $field->build($this->execution_data));
+            ->map(fn(FormFieldBuilder $field, int $key) => $field->setCurrentState((bool)data_get($this->task_data, FormFieldBuilder::taskKey($key)))
+                ->build($key, $this->execution_data)
+            );
     }
 
 }

@@ -8,9 +8,12 @@ use Filament\Forms\Components\Component;
 class Task extends AbstractFormField
 {
 
-    public function build(): Component
+    public function build(string $key): Component
     {
-        return Checkbox::make($this->content)
+
+        return Checkbox::make($key)
+            ->label($this->content)
+            ->formatStateUsing(fn() => $this->checked)
             ->required($this->required);
     }
 }

@@ -10,9 +10,9 @@ class Paragraph extends AbstractFormField
 {
 
 
-    public function build(): Placeholder
+    public function build(string $key): Placeholder
     {
-        return Placeholder::make('content')
+        return Placeholder::make('')
             ->content(new HtmlString($this->content));
 
     }
