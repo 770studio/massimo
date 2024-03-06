@@ -3,6 +3,7 @@
 namespace App\Helpers\FormFields;
 
 use App\Enums\FormFieldType;
+use Filament\Forms\Components\Component;
 
 class FormFieldBuilder
 {
@@ -19,7 +20,7 @@ class FormFieldBuilder
 
     }
 
-    public function build()
+    public function build(): Component
     {
 
         return $this->type->getField($this->content, $this->required);

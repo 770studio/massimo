@@ -11,10 +11,12 @@ use App\Actions\FilamentCompanies\RemoveCompanyEmployee;
 use App\Actions\FilamentCompanies\UpdateCompanyName;
 use App\Actions\FilamentCompanies\UpdateUserPassword;
 use App\Actions\FilamentCompanies\UpdateUserProfileInformation;
+use App\Filament\Pages\CompanyAccessTokens;
 use App\Models\Company;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -37,8 +39,6 @@ class FilamentCompaniesServiceProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-
-        $persCompany = Auth::user()?->personalCompany();
 
         return $panel
             ->id('company')
@@ -79,8 +79,15 @@ class FilamentCompaniesServiceProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Company/Pages'), for: 'App\\Filament\\Company\\Pages')
             ->pages([
                 Pages\Dashboard::class,
-            ])
+                CompanyAccessTokens::class,
 
+            ])
+            ->navigationItems([
+                NavigationItem::make('API Access Tokens')
+                    ->label(static fn(): string => __('API Access Tokens'))
+                    ->icon('heroicon-o-key')
+                    ->url(static fn() => url(CompanyAccessTokens::getUrl())),
+            ])
             ->authGuard('web')
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
             ->widgets([

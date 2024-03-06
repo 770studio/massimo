@@ -4,6 +4,7 @@ namespace App\Enums;
 
 
 use App\Helpers\FormFields\AbstractFormField;
+use Filament\Forms\Components\Component;
 use Illuminate\Support\Str;
 
 enum FormFieldType: string
@@ -14,7 +15,7 @@ enum FormFieldType: string
     case PARAGRAPH = 'paragraph';
 
 
-    public function getField(string $content, bool $required)
+    public function getField(string $content, bool $required): Component
     {
         /** @var AbstractFormField $entity */
         $entity = new ("\App\Helpers\FormFields\\" . Str::studly($this->value))($content, $required);

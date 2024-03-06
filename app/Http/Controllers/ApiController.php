@@ -2,19 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Process;
 use App\Models\Task;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\UnauthorizedException;
 
 
 class ApiController extends Controller
 {
     public function createTask(Request $request)
     {
+        $company = $request->user();
+        if (!$company instanceof Company) {
+            throw new UnauthorizedException('not a company');
+        }
         $request->validate([
             'process_id' => 'required|integer',
             'user_id' => 'required|integer',
@@ -22,21 +27,20 @@ class ApiController extends Controller
 
         $process = Process::query()->find($request->process_id);
         $user = User::query()->find($request->user_id);
-        $auth_user = Auth::user();
 
         Validator::make($request->all(), [
             'process_id' => [
-                function (string $attribute, mixed $value, Closure $fail) use ($auth_user, $process) {
+                function (string $attribute, mixed $value, Closure $fail) use ($company, $process) {
 
-                    if ($process->user_id !== $auth_user->getKey()) {
-                        $fail("User A does not match.");
+                    if ($process->company_id !== $company->getKey()) {
+                        $fail("company does not match.");
                     }
                 },
             ],
             'user_id' => [
-                function (string $attribute, mixed $value, Closure $fail) use ($user, $auth_user, $process) {
+                function (string $attribute, mixed $value, Closure $fail) use ($user, $process) {
                     if (!$user) {
-                        $fail("User B does not exist.");
+                        $fail("assigned user does not exist.");
                     }
                 },
             ],

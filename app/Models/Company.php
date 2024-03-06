@@ -6,6 +6,7 @@ use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Laravel\Sanctum\HasApiTokens;
 use Wallo\FilamentCompanies\Company as FilamentCompaniesCompany;
 use Wallo\FilamentCompanies\Events\CompanyCreated;
 use Wallo\FilamentCompanies\Events\CompanyDeleted;
@@ -13,7 +14,7 @@ use Wallo\FilamentCompanies\Events\CompanyUpdated;
 
 class Company extends FilamentCompaniesCompany implements HasAvatar
 {
-    use HasFactory;
+    use HasFactory, HasApiTokens;
 
     public function getFilamentAvatarUrl(): string
     {

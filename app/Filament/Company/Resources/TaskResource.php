@@ -4,7 +4,6 @@ namespace App\Filament\Company\Resources;
 
 use App\Models\Task;
 use Filament\Forms\Form;
-use Filament\Pages\Dashboard;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
@@ -31,15 +30,14 @@ class TaskResource extends Resource
 
     public static function table(Table $table): Table
     {
+
         return $table
             ->columns([
                 TextColumn::make('process.name')
-                    ->url(fn(Task $task): string => url(Dashboard::getUrl(panel: 'company', tenant: $task->company) . '/processes/' .
-                        $task->process_id)
-                    )
+                    ->url(fn(Task $task): string => ProcessResource::getUrl('view', ['record' => $task->process_id, 'tenant' => $task->company]))
                     ->sortable()
                     ->openUrlInNewTab(),
-                TextColumn::make('assigned_to.name'),
+                TextColumn::make('assignedUser.name'),
                 TextColumn::make('execution')
                     ->default('run')
                     ->url(fn(Task $task): string => TaskExecutionResource::getUrl('create', ['task' => $task->id]))
