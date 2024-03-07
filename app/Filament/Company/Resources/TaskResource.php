@@ -4,6 +4,7 @@ namespace App\Filament\Company\Resources;
 
 use App\Models\Task;
 use Auth;
+use Exception;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Toggle;
@@ -13,7 +14,9 @@ use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\UnauthorizedException;
 
@@ -61,6 +64,9 @@ class TaskResource extends Resource
                 ]);
     }
 
+    /**
+     * @throws Exception
+     */
     public static function table(Table $table): Table
     {
 
@@ -81,7 +87,9 @@ class TaskResource extends Resource
 
             ])
             ->filters([
-                //
+                Filter::make('completed')
+                    ->query(fn(Builder $query): Builder => $query->where('completed', true))
+                    ->toggle()
             ])
             ->actions([
                 //    EditAction::make(),
