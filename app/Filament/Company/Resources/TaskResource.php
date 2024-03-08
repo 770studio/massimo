@@ -18,6 +18,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
 use Illuminate\Validation\UnauthorizedException;
 
 class TaskResource extends Resource
@@ -77,7 +78,7 @@ class TaskResource extends Resource
                     ->sortable()
                     ->openUrlInNewTab(),
                 TextColumn::make('assignedUser.name')
-                    ->default('Unassigned'),
+                    ->default(new HtmlString('<i>Unassigned</i>')),
                 TextColumn::make('execution')
                     ->default('run')
                     ->url(fn(Task $task): string => TaskResource::getUrl('edit', ['record' => $task->id]))
