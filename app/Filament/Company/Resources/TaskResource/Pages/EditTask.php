@@ -15,7 +15,7 @@ class EditTask extends EditRecord
     protected static ?string $breadcrumb = 'execution';
     protected static ?string $title = 'Task execution';
     protected static ?string $slug = 'task-execution';
-    private bool $_completed = false;
+    private bool $_completed = true;
 
     protected function getHeaderActions(): array
     {
@@ -43,23 +43,32 @@ class EditTask extends EditRecord
 
     protected function getFormActions(): array
     {
-
+        #TODO mb try modal + headeractions
+        /*        Action::make('save')
+                    ->label(__('Complete'))
+                    ->requiresConfirmation()
+                    ->action(fn() =>     $this->data['completed'] = true )*/
         return !$this->getRecord()->completed
             ? [
-                $this->getSaveFormAction(),
+                Action::make('Save')
+                    ->action('SaveState'),
 
+                /*                $this->getSaveFormAction()
+                                     ->label('Complete'),*/
                 Action::make('Complete')
-                    ->action('Complete')
-                ,
+                    ->submit('save'),
 
                 $this->getCancelFormAction(),
             ] : [];
     }
 
-    public function Complete()
+    public function SaveState()
     {
-        $this->data['completed'] = true;
-        $this->_completed = true;
+
+        $this->_completed = false;
+        // $this->data['completed'] = 0;
         $this->save();
     }
+
+
 }

@@ -33,13 +33,14 @@ class FormFieldBuilder
         return $this;
     }
 
-    public function build(int $key, ?array $execution_data = []): Component
+    public function build(int $key, ?array $execution_data = [], bool $completed = false): Component
     {
         $content = $this->prepareContent((array)$execution_data);
         /** @var AbstractFormField $entity */
         $entity = new ("\App\Helpers\FormFields\\" . Str::studly($this->type->value))($content, $this->required, $this->checked);
 
-        return $entity->build(self::taskKey($key));
+        return $entity->build(self::taskKey($key))
+            ->disabled($completed);
 
 
     }

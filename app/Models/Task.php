@@ -15,7 +15,8 @@ class Task extends Model
     protected $guarded = [];
     protected $casts = [
         'task_data' => 'json',
-        'execution_data' => 'json'
+        'execution_data' => 'json',
+        'completed' => 'bool'
     ];
 
 
@@ -40,7 +41,7 @@ class Task extends Model
         return $this->process->configuration
             ->mapInto(FormFieldBuilder::class)
             ->map(fn(FormFieldBuilder $field, int $key) => $field->setCurrentState((bool)data_get($this->task_data, FormFieldBuilder::taskKey($key)))
-                ->build($key, $this->execution_data)
+                ->build($key, $this->execution_data, (bool)$this->completed)
             );
     }
 
