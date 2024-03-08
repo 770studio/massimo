@@ -4,6 +4,7 @@ namespace App\Filament\Company\Resources\TaskResource\Pages;
 
 use App\Filament\Company\Resources\TaskResource;
 use App\Models\Task;
+use Auth;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
@@ -31,11 +32,17 @@ class EditTask extends EditRecord
     {
 
         /** @var Task $record */
-        $record->task_data = $data;
+        $record->execution_data = $data;
         if ($this->_completed && !$record->completed) {
             $record->completed = 1;
             $record->completed_at = now();
         }
+
+        // task is still unassigned
+        if (!$record->assigned_to) {
+            $record->assigned_to = Auth::id();
+        }
+        
         $record->save();
         return $record;
     }
