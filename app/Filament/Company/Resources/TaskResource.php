@@ -76,7 +76,8 @@ class TaskResource extends Resource
                     ->url(fn(Task $task): string => ProcessResource::getUrl('view', ['record' => $task->process_id, 'tenant' => $task->company]))
                     ->sortable()
                     ->openUrlInNewTab(),
-                TextColumn::make('assignedUser.name'),
+                TextColumn::make('assignedUser.name')
+                    ->default('Unassigned'),
                 TextColumn::make('execution')
                     ->default('run')
                     ->url(fn(Task $task): string => TaskResource::getUrl('edit', ['record' => $task->id]))
