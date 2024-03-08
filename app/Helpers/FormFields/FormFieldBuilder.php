@@ -33,9 +33,10 @@ class FormFieldBuilder
         return $this;
     }
 
-    public function build(int $key, ?array $execution_data = [], bool $completed = false): Component
+    public function build(int $key, ?array $task_data = [], bool $completed = false): Component
     {
-        $content = $this->prepareContent((array)$execution_data);
+
+        $content = $this->prepareContent((array)$task_data);
         /** @var AbstractFormField $entity */
         $entity = new ("\App\Helpers\FormFields\\" . Str::studly($this->type->value))($content, $this->required, $this->checked);
 
@@ -45,8 +46,8 @@ class FormFieldBuilder
 
     }
 
-    private function prepareContent(array $execution_data): string
+    private function prepareContent(array $task_data): string
     {
-        return Str::replace(array_keys($execution_data), array_values($execution_data), $this->content);
+        return Str::replace(array_keys($task_data), array_values($task_data), $this->content);
     }
 }
