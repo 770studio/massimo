@@ -22,7 +22,7 @@ class ApiController extends Controller
         }
         $request->validate([
             'process_id' => 'required|integer',
-            'user_id' => 'required|integer',
+            'user_id' => 'sometimes|integer',
         ]);
 
         $process = Process::query()->find($request->process_id);
