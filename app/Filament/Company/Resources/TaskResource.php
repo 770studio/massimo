@@ -5,10 +5,12 @@ namespace App\Filament\Company\Resources;
 use App\Models\Task;
 use Auth;
 use Exception;
+use Filament\Actions\StaticAction;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Tables\Actions\Action;
@@ -43,30 +45,8 @@ class TaskResource extends Resource
         }
 
 
-
         return $form
-            ->schema(
-                [
-                    Section::make(
-                        $task->buildForm()->toArray()
-                    ),
-
-                    Placeholder::make('created_at')
-                        ->label('Created Date')
-                        ->content(fn(?Task $record): string => $record?->created_at?->diffForHumans() ?? '-'),
-
-                    Placeholder::make('updated_at')
-                        ->label('Last Modified Date')
-                        ->content(fn(?Task $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
-
-                    Toggle::make('completed')
-                        ->hidden(
-                            fn(callable $get): bool => $get('completed') == false
-                        )
-                        ->disabled(),
-
-
-                ]);
+            ->schema([]);
     }
 
     /**
@@ -99,13 +79,7 @@ class TaskResource extends Resource
                     ->openUrlInNewTab(),
                 TextColumn::make('assignedUser.name')
                     ->default(new HtmlString('<i>Unassigned</i>')),
-                TextColumn::make('execution')
-                    ->default('run')
-                    ->url(fn(Task $task): string => TaskResource::getUrl('edit', ['record' => $task->id]))
-                    //  ->url(fn(Task $task): string => TaskExecutionResource::getUrl('create', ['task' => $task->id]))
-                    ->sortable()
-                    ->openUrlInNewTab(),
-
+      
 
             ])
             ->filters([
@@ -121,38 +95,47 @@ class TaskResource extends Resource
                     ->modalHeading('modalHeading')
                     ->icon('heroicon-o-play-pause')
                     ->modalWidth(MaxWidth::FiveExtraLarge)
-                    ->mountUsing(static function (Form $form, Task $task) use ($modalStaticFields) {
+                    ->mountUsing(function (Form $form, Task $task) use ($modalStaticFields) {
+                        return $form->fill($task->execution_data);
+                    })
+                    ->action(function (Task $task, array $data, array $arguments) {
 
-                        $form->schema(
-                            array_merge(
-                                [
-                                    Section::make(
-                                        $task->buildForm()->toArray()
-                                    )
-                                ]
-                                , $modalStaticFields)
-                        );
+                        if ($task->completed) {
+                            Notification::make()
+                                ->title('Task is already completed')
+                                ->duration(5000)
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+                        $task->execution_data = $data;
+                        $completed = data_get($arguments, 'completed');
+                        if ($completed && !$task->completed) {
+                            $task->completed = 1;
+                            $task->completed_at = now();
+                        }
+                        // task is still unassigned
+                        if (!$task->assigned_to) {
+                            $task->assigned_to = Auth::id();
+                        }
 
-
-                        $form->live();
+                        $task->save();
 
 
                     })
-                    ->action(function ($record, array $data) {
-                        dd($record, $data);
-                        $name = $data['name'];
-                        $abilities = array_values($data['abilities']);
-                        $selected = array_intersect_key($permissions, array_flip($abilities));
-                        $record->update([
-                            'name' => $name,
-                            'abilities' => $selected,
-                        ]);
-
-                    })
+                    ->modalSubmitAction(fn(StaticAction $action) => $action->label('Save'))
                     ->extraModalFooterActions(fn(Action $action): array => [
                         $action->makeModalSubmitAction('Complete', arguments: ['completed' => true]),
                     ])
-                    ->form($modalStaticFields),
+                    ->form(function (Form $form, Task $task) use ($modalStaticFields) {
+                        return array_merge(
+                            [
+                                Section::make(
+                                    $task->buildForm()->toArray()
+                                )
+                            ]
+                            , $modalStaticFields);
+                    }),
 
 
             ])

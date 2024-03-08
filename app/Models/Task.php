@@ -40,7 +40,7 @@ class Task extends Model
 
         return $this->process->configuration
             ->mapInto(FormFieldBuilder::class)
-            ->map(fn(FormFieldBuilder $field, int $key) => $field->setCurrentState((bool)data_get($this->execution_data, FormFieldBuilder::taskKey($key)))
+            ->map(fn(FormFieldBuilder $field, int $key) => $field->setCurrentState($this->execution_data)
                 ->build($key, $this->task_data, (bool)$this->completed)
             );
     }

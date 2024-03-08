@@ -12,7 +12,7 @@ class FormFieldBuilder
     private FormFieldType $type;
     private bool $required;
     private string $content;
-    private bool $checked = false;
+    private array $state;
 
     public function __construct(array $conf)
     {
@@ -27,18 +27,22 @@ class FormFieldBuilder
         return 'task' . $key;
     }
 
-    public function setCurrentState(bool $checked): static
+    public function setCurrentState(array $state): static
     {
-        $this->checked = $checked;
+        $this->state = $state;
+
+
         return $this;
     }
 
     public function build(int $key, ?array $task_data = [], bool $completed = false): Component
     {
-
+        $checked = (bool)data_get($this->state, self::taskKey($key));
         $content = $this->prepareContent((array)$task_data);
+
+        $entityClass = "\App\Helpers\FormFields\\" . Str::studly($this->type->value);
         /** @var AbstractFormField $entity */
-        $entity = new ("\App\Helpers\FormFields\\" . Str::studly($this->type->value))($content, $this->required, $this->checked);
+        $entity = new $entityClass($content, $this->required, $checked);
 
         return $entity->build(self::taskKey($key))
             ->disabled($completed);
