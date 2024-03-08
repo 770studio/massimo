@@ -2,6 +2,7 @@
 
 namespace App\Filament\Company\Resources;
 
+use App\Helpers\PlaceholderMacroHelper;
 use App\Models\Task;
 use Auth;
 use Exception;
@@ -73,13 +74,15 @@ class TaskResource extends Resource
         ];
         return $table
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('process.name')
+                    ->formatStateUsing(fn(Task $task) => PlaceholderMacroHelper::replaceTextMacro($task->task_data, $task->process->name))
                     ->url(fn(Task $task): string => ProcessResource::getUrl('view', ['record' => $task->process_id, 'tenant' => $task->company]))
                     ->sortable()
                     ->openUrlInNewTab(),
                 TextColumn::make('assignedUser.name')
                     ->default(new HtmlString('<i>Unassigned</i>')),
-      
+
 
             ])
             ->filters([
@@ -91,13 +94,14 @@ class TaskResource extends Resource
 
 
                 Action::make('run')
-                    //->label(__('run'))
-                    ->modalHeading('modalHeading')
+                    ->modalHeading(function (Action $action) {
+                        /** @var Task $task */
+                        $task = $action->getRecord();
+                        return PlaceholderMacroHelper::replaceTextMacro($task->task_data, $task->process->name);
+                    })
                     ->icon('heroicon-o-play-pause')
                     ->modalWidth(MaxWidth::FiveExtraLarge)
-                    ->mountUsing(function (Form $form, Task $task) use ($modalStaticFields) {
-                        return $form->fill($task->execution_data);
-                    })
+                    ->mountUsing(fn(Form $form, Task $task) => $form->fill($task->execution_data))
                     ->action(function (Task $task, array $data, array $arguments) {
 
                         if ($task->completed) {
@@ -110,7 +114,7 @@ class TaskResource extends Resource
                         }
                         $task->execution_data = $data;
                         $completed = data_get($arguments, 'completed');
-                        if ($completed && !$task->completed) {
+                        if ($completed) {
                             $task->completed = 1;
                             $task->completed_at = now();
                         }

@@ -3,6 +3,7 @@
 namespace App\Helpers\FormFields;
 
 use App\Enums\FormFieldType;
+use App\Helpers\PlaceholderMacroHelper;
 use Filament\Forms\Components\Component;
 use Illuminate\Support\Str;
 
@@ -27,9 +28,9 @@ class FormFieldBuilder
         return 'task' . $key;
     }
 
-    public function setCurrentState(array $state): static
+    public function setCurrentState(?array $state): static
     {
-        $this->state = $state;
+        $this->state = (array)$state;
 
 
         return $this;
@@ -38,7 +39,7 @@ class FormFieldBuilder
     public function build(int $key, ?array $task_data = [], bool $completed = false): Component
     {
         $checked = (bool)data_get($this->state, self::taskKey($key));
-        $content = $this->prepareContent((array)$task_data);
+        $content = PlaceholderMacroHelper::replaceTextMacro($task_data, $this->content);
 
         $entityClass = "\App\Helpers\FormFields\\" . Str::studly($this->type->value);
         /** @var AbstractFormField $entity */
@@ -50,9 +51,5 @@ class FormFieldBuilder
 
     }
 
-    private function prepareContent(array $task_data): string
-    {
-        $keys = array_map(fn($item) => '{{' . $item . '}}', array_keys($task_data));
-        return Str::replace($keys, array_values($task_data), $this->content);
-    }
+
 }
