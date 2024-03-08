@@ -10,8 +10,9 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\MaxWidth;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -28,16 +29,19 @@ class TaskResource extends Resource
     protected static ?string $slug = 'tasks';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    private static ?Task $modalTask = null;
 
     public static function form(Form $form): Form
     {
         /** @var Task $task */
         $task = $form->getRecord();
 
+
         if ($task->assigned_to && $task->assigned_to !== Auth::id()) {
             throw new UnauthorizedException('Task is already assigned to another user');
             // return redirect('/dashboard')->with('success', 'You have set your password successfully.');
         }
+
 
 
         return $form
@@ -71,6 +75,22 @@ class TaskResource extends Resource
     public static function table(Table $table): Table
     {
 
+        $modalStaticFields = [
+            Placeholder::make('created_at')
+                ->label('Created Date')
+                ->content(fn(?Task $record): string => $record?->created_at?->diffForHumans() ?? '-'),
+
+            Placeholder::make('updated_at')
+                ->label('Last Modified Date')
+                ->content(fn(?Task $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
+
+            Toggle::make('completed')
+                ->hidden(
+                    fn(callable $get): bool => $get('completed') == false
+                )
+                ->disabled()
+
+        ];
         return $table
             ->columns([
                 TextColumn::make('process.name')
@@ -94,8 +114,47 @@ class TaskResource extends Resource
                     ->toggle()
             ])
             ->actions([
-                //    EditAction::make(),
-                DeleteAction::make(),
+
+
+                Action::make('run')
+                    //->label(__('run'))
+                    ->modalHeading('modalHeading')
+                    ->icon('heroicon-o-play-pause')
+                    ->modalWidth(MaxWidth::FiveExtraLarge)
+                    ->mountUsing(static function (Form $form, Task $task) use ($modalStaticFields) {
+
+                        $form->schema(
+                            array_merge(
+                                [
+                                    Section::make(
+                                        $task->buildForm()->toArray()
+                                    )
+                                ]
+                                , $modalStaticFields)
+                        );
+
+
+                        $form->live();
+
+
+                    })
+                    ->action(function ($record, array $data) {
+                        dd($record, $data);
+                        $name = $data['name'];
+                        $abilities = array_values($data['abilities']);
+                        $selected = array_intersect_key($permissions, array_flip($abilities));
+                        $record->update([
+                            'name' => $name,
+                            'abilities' => $selected,
+                        ]);
+
+                    })
+                    ->extraModalFooterActions(fn(Action $action): array => [
+                        $action->makeModalSubmitAction('Complete', arguments: ['completed' => true]),
+                    ])
+                    ->form($modalStaticFields),
+
+
             ])
             ->bulkActions([
                 BulkActionGroup::make([
