@@ -48,6 +48,7 @@ class FormFieldBuilder
 
     private function prepareContent(array $task_data): string
     {
-        return Str::replace(array_keys($task_data), array_values($task_data), $this->content);
+        $keys = array_map(fn($item) => '{{' . $item . '}}', array_keys($task_data));
+        return Str::replace($keys, array_values($task_data), $this->content);
     }
 }
