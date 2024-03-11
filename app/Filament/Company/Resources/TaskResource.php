@@ -18,6 +18,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
@@ -68,7 +69,7 @@ class TaskResource extends Resource
                 TextColumn::make('assignedUser.name')
                     ->default(new HtmlString('<i>Unassigned</i>')),
                 TextColumn::make('completed_at')
-                    ->toggleable()
+                    ->visible(fn(HasTable $livewire): bool => $livewire->activeTab === 'Completed')
             ])
             ->filters([
                 /*    Filter::make('completed')
