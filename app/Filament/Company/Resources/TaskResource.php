@@ -18,9 +18,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
 use Illuminate\Validation\UnauthorizedException;
@@ -86,9 +84,9 @@ class TaskResource extends Resource
 
             ])
             ->filters([
-                Filter::make('completed')
+            /*    Filter::make('completed')
                     ->query(fn(Builder $query): Builder => $query->where('completed', true))
-                    ->toggle()
+                    ->toggle()*/
             ])
             ->actions([
 
