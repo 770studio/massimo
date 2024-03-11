@@ -7,7 +7,6 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
-use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -20,7 +19,6 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Wallo\FilamentCompanies\Pages\User\PersonalAccessTokens;
 use Wallo\FilamentCompanies\Pages\User\Profile;
 
 class AdminPanelProvider extends PanelProvider
@@ -47,7 +45,6 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
                 Profile::class,
-                PersonalAccessTokens::class,
             ])
             ->userMenuItems([
                 'profile' => MenuItem::make()
@@ -60,10 +57,7 @@ class AdminPanelProvider extends PanelProvider
                     ->url(static fn() => url(Pages\Dashboard::getUrl(panel: 'company', tenant: Auth::user()->personalCompany()))),
             ])
             ->navigationItems([
-                NavigationItem::make('Personal Access Tokens')
-                    ->label(static fn(): string => __('filament-companies::default.navigation.links.tokens'))
-                    ->icon('heroicon-o-key')
-                    ->url(static fn() => url(PersonalAccessTokens::getUrl())),
+
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([

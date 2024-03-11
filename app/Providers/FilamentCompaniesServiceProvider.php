@@ -16,6 +16,7 @@ use App\Models\Company;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
@@ -34,6 +35,7 @@ use Wallo\FilamentCompanies\Pages\Auth\Login;
 use Wallo\FilamentCompanies\Pages\Auth\Register;
 use Wallo\FilamentCompanies\Pages\Company\CompanySettings;
 use Wallo\FilamentCompanies\Pages\Company\CreateCompany;
+use Wallo\FilamentCompanies\Pages\User\Profile;
 
 class FilamentCompaniesServiceProvider extends PanelProvider
 {
@@ -60,6 +62,7 @@ class FilamentCompaniesServiceProvider extends PanelProvider
                 FilamentCompanies::make()
                     ->userPanel('admin')
                     ->switchCurrentCompany()
+                    ->profilePhotos()
                     ->updateProfileInformation()
                     ->updatePasswords()
                     ->manageBrowserSessions()
@@ -81,12 +84,19 @@ class FilamentCompaniesServiceProvider extends PanelProvider
                 Pages\Dashboard::class,
                 CompanyAccessTokens::class,
 
+
             ])
             ->navigationItems([
                 NavigationItem::make('API Access Tokens')
                     ->label(static fn(): string => __('API Access Tokens'))
                     ->icon('heroicon-o-key')
                     ->url(static fn() => url(CompanyAccessTokens::getUrl())),
+            ])
+            ->userMenuItems([
+                'profile' => MenuItem::make()
+                    ->label('Profile')
+                    ->icon('heroicon-o-user-circle')
+                    ->url(static fn() => url(Profile::getUrl(panel: 'admin', tenant: Auth::user()->personalCompany()))),
             ])
             ->authGuard('web')
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
