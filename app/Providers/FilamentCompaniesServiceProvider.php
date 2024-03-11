@@ -96,7 +96,7 @@ class FilamentCompaniesServiceProvider extends PanelProvider
                 'profile' => MenuItem::make()
                     ->label('Profile')
                     ->icon('heroicon-o-user-circle')
-                    ->url(static fn() => url(Profile::getUrl(panel: 'admin', tenant: Auth::user()->personalCompany()))),
+                    ->url(static fn() => Auth::user()?->personalCompany() ? url(Profile::getUrl(panel: 'admin', tenant: Auth::user()->personalCompany())) : ''),
             ])
             ->authGuard('web')
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
