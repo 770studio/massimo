@@ -23,7 +23,8 @@ class ListTasks extends ListRecords
     {
         return [
             'Todo' => Tab::make('Todo')
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereNull('completed')),
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereNull('completed'))
+            ,
             'Completed' => Tab::make('Completed')
                 ->modifyQueryUsing(fn(Builder $query) => $query->whereNotNull('completed')),
         ];

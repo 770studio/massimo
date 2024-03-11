@@ -21,7 +21,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
-use Illuminate\Validation\UnauthorizedException;
 
 class TaskResource extends Resource
 {
@@ -32,20 +31,23 @@ class TaskResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     private static ?Task $modalTask = null;
 
+
     public static function form(Form $form): Form
     {
+
         /** @var Task $task */
         $task = $form->getRecord();
-
-
-        if ($task->assigned_to && $task->assigned_to !== Auth::id()) {
-            throw new UnauthorizedException('Task is already assigned to another user');
-            // return redirect('/dashboard')->with('success', 'You have set your password successfully.');
-        }
-
-
         return $form
-            ->schema([]);
+            ->schema(
+                array_merge(
+                    [
+                        Section::make(
+                            $task->buildForm()->toArray()
+                        )
+                    ]
+                    , static::staticFormFields())
+            );
+
     }
 
     /**
@@ -54,22 +56,7 @@ class TaskResource extends Resource
     public static function table(Table $table): Table
     {
 
-        $modalStaticFields = [
-            Placeholder::make('created_at')
-                ->label('Created Date')
-                ->content(fn(?Task $record): string => $record?->created_at?->diffForHumans() ?? '-'),
 
-            Placeholder::make('updated_at')
-                ->label('Last Modified Date')
-                ->content(fn(?Task $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
-
-            Toggle::make('completed')
-                ->hidden(
-                    fn(callable $get): bool => $get('completed') == false
-                )
-                ->disabled()
-
-        ];
         return $table
             ->columns([
                 TextColumn::make('id'),
@@ -84,14 +71,17 @@ class TaskResource extends Resource
 
             ])
             ->filters([
-            /*    Filter::make('completed')
-                    ->query(fn(Builder $query): Builder => $query->where('completed', true))
-                    ->toggle()*/
+                /*    Filter::make('completed')
+                        ->query(fn(Builder $query): Builder => $query->where('completed', true))
+                        ->toggle()*/
             ])
             ->actions([
-
+                Action::make('view')->icon('heroicon-o-document')
+                    ->hidden(fn(Task $task) => !$task->completed)
+                    ->url(fn(Task $task) => TaskResource::getUrl('view', ['record' => $task->getKey(), 'tenant' => $task->company])),
 
                 Action::make('run')
+                    ->hidden(fn(Task $task) => $task->completed)
                     ->modalHeading(function (Action $action) {
                         /** @var Task $task */
                         $task = $action->getRecord();
@@ -129,14 +119,14 @@ class TaskResource extends Resource
                     ->extraModalFooterActions(fn(Action $action): array => [
                         $action->makeModalSubmitAction('Complete', arguments: ['completed' => true]),
                     ])
-                    ->form(function (Form $form, Task $task) use ($modalStaticFields) {
+                    ->form(function (Form $form, Task $task) {
                         return array_merge(
                             [
                                 Section::make(
                                     $task->buildForm()->toArray()
                                 )
                             ]
-                            , $modalStaticFields);
+                            , static::staticFormFields());
                     }),
 
 
@@ -153,7 +143,9 @@ class TaskResource extends Resource
         return [
             'index' => TaskResource\Pages\ListTasks::route('/'),
             'create' => TaskResource\Pages\CreateTask::route('/create'),
-            'edit' => TaskResource\Pages\EditTask::route('/{record}/execute'),
+            'edit' => TaskResource\Pages\EditTask::route('/{record}/edit'),
+            'view' => TaskResource\Pages\ViewTask::route('/{record}'),
+
         ];
     }
 
@@ -181,6 +173,25 @@ class TaskResource extends Resource
         {
             return !$record->assigned_to || $record->assigned_to === \Auth::id();
         }*/
+    private static function staticFormFields(): array
+    {
+        return [
+            Placeholder::make('created_at')
+                ->label('Created Date')
+                ->content(fn(?Task $record): string => $record?->created_at?->diffForHumans() ?? '-'),
+
+            Placeholder::make('updated_at')
+                ->label('Last Modified Date')
+                ->content(fn(?Task $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
+
+            Toggle::make('completed')
+                ->hidden(
+                    fn(callable $get): bool => $get('completed') == false
+                )
+                ->disabled()
+
+        ];
+    }
 
 
 }
