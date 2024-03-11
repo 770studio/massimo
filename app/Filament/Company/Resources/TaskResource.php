@@ -67,8 +67,8 @@ class TaskResource extends Resource
                     ->openUrlInNewTab(),
                 TextColumn::make('assignedUser.name')
                     ->default(new HtmlString('<i>Unassigned</i>')),
-
-
+                TextColumn::make('completed_at')
+                    ->toggleable()
             ])
             ->filters([
                 /*    Filter::make('completed')
