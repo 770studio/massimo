@@ -12,10 +12,12 @@ use App\Actions\FilamentCompanies\UpdateCompanyName;
 use App\Actions\FilamentCompanies\UpdateUserPassword;
 use App\Actions\FilamentCompanies\UpdateUserProfileInformation;
 use App\Filament\Pages\CompanyAccessTokens;
+use App\Http\Responses\LogoutResponse;
 use App\Models\Company;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Http\Responses\Auth\Contracts\LogoutResponse as LogoutResponseContract;
 use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages;
@@ -39,6 +41,17 @@ use Wallo\FilamentCompanies\Pages\User\Profile;
 
 class FilamentCompaniesServiceProvider extends PanelProvider
 {
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        parent::register();
+        $this->app->bind(LogoutResponseContract::class, LogoutResponse::class);
+
+    }
+
+
     public function panel(Panel $panel): Panel
     {
 
@@ -61,7 +74,7 @@ class FilamentCompaniesServiceProvider extends PanelProvider
 
                 FilamentCompanies::make()
                     ->userPanel('admin')
-                    ->switchCurrentCompany()
+                    // ->switchCurrentCompany(false)
                     ->profilePhotos()
                     ->updateProfileInformation()
                     ->updatePasswords()
@@ -160,4 +173,6 @@ class FilamentCompaniesServiceProvider extends PanelProvider
             'update',
         ])->description('Editor users have the ability to read, create, and update.');
     }
+
+
 }
