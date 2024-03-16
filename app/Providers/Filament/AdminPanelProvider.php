@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(fn() => abort(404))
             ->colors([
                 'primary' => '#c61044',
             ])
